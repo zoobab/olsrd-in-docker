@@ -52,7 +52,9 @@ In my case, it means adding this config file "/etc/docker/daemon.json":
 
 And then restart the docker daemon with:
 
+```
 $ systemctl restart docker
+```
 
 Then start a container and check that eth0 has an IPv6 address:
 
