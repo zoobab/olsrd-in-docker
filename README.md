@@ -3,10 +3,36 @@ About
 
 Trying to run babel routing daemon inside a docker container.
 
+Why?
+====
+
+* Run many babeld on multiple containers
+* Load testing
+* Simulations
+* Generate packet loss and latency via netem module  
+* Etc...
+
 Status
 ======
 
 WIP, I can't make 2 containers to see each other, don't know why...
+
+Pre-built image
+===============
+
+If you want to try, here is a oneliner:
+
+```
+$ docker run --privileged zoobab/babeld-in-docker
+Warning: couldn't find router id -- using random value.
+Type: 0
+Noticed ifindex change for eth0.
+Noticed status change for eth0.
+Sending seqno 49393 from address 0x61b070 (dump)
+Netlink message: [multi] {seq:49393}(msg -> "found address on interface lo(1): 127.0.0.1
+" 0), [multi] {seq:49393}(msg -> "found address on interface eth0(44): 172.17.0.2
+[...]
+```
 
 Docker with IPv6
 ================
