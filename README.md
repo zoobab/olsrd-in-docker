@@ -102,3 +102,15 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 172.17.0.4      172.17.0.4      255.255.255.255 UGH   2      0        0 eth0
 172.17.0.5      172.17.0.5      255.255.255.255 UGH   2      0        0 eth0
 ```
+
+Run inside Kubernetes cluster
+=============================
+
+In the kubernetes web interface, go to:
+
+Pods -> Create -> App name is "olsrd" -> Container image is "zoobab/olsrd-in-docker" -> Replicas is "10" -> Tick "Run as privileged"
+
+Screenshots:
+
+![olsrd in kubernetes with 10 replicas](kubernetes-olsrd-10replicas.png)
+![shell inside a container to show the routes](kubernetes-olsrd-routes.png)
