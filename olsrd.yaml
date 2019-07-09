@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: olsrd
+spec:
+  containers:
+  - image: zoobab/olsrd-in-docker
+    name: olsrd
+    securityContext:
+      privileged: true
