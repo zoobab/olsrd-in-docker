@@ -1,0 +1,6 @@
+spec:
+  containers:
+  - image: zoobab/olsrd-in-docker
+    name: olsrd
+    securityContext:
+      privileged: true

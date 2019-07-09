@@ -1,0 +1,25 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: myolsrd11
+  name: myolsrd11
+spec:
+  replicas: 11
+  selector:
+    matchLabels:
+      run: myolsrd11
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: myolsrd11
+    spec:
+      containers:
+      - image: zoobab/olsrd-in-docker
+        name: myolsrd11
+        resources: {}
+        securityContext:
+          privileged: true

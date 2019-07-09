@@ -160,9 +160,67 @@ PING 10.42.0.11 (10.42.0.11): 56 data bytes
 round-trip min/avg/max = 0.154/0.154/0.154 ms
 ```
 
+With kubectl run and some override option to pass the security context to privileged (took me a while to find it):
+
+```
+$ kubectl run myolsrd10 --image=zoobab/olsrd-in-docker --replicas=10 --overrides='{"spec": {"template": {"spec": {"containers": [{"name": "myolsrd10", "image": "zoobab/olsrd-in-docker", "securityContext": {"privileged": true} }]}}}}'
+deployment.apps/myolsrd10 created
+$ kubectl  get pods -o wide
+NAME                         READY     STATUS    RESTARTS   AGE       IP           NODE                     NOMINATED NODE   READINESS GATES
+myolsrd10-56887c785f-67ddb   1/1       Running   0          94s       10.42.0.57   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-b26d8   1/1       Running   0          94s       10.42.0.54   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-f7gnj   1/1       Running   0          94s       10.42.0.53   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-fwfxg   1/1       Running   0          94s       10.42.0.50   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-n2l7s   1/1       Running   0          94s       10.42.0.56   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-qf2t5   1/1       Running   0          94s       10.42.0.51   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-v45xq   1/1       Running   0          94s       10.42.0.55   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-v4png   1/1       Running   0          94s       10.42.0.48   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-w4hlj   1/1       Running   0          94s       10.42.0.49   k3d-k3s-default-server   <none>           <none>
+myolsrd10-56887c785f-w6g8w   1/1       Running   0          94s       10.42.0.52   k3d-k3s-default-server   <none>           <none>
+$ kubectl exec -it myolsrd10-56887c785f-67ddb -- route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         10.42.0.1       0.0.0.0         UG    0      0        0 eth0
+10.42.0.0       0.0.0.0         255.255.255.0   U     0      0        0 eth0
+10.42.0.0       10.42.0.1       255.255.0.0     UG    0      0        0 eth0
+10.42.0.10      10.42.0.10      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.11      10.42.0.11      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.46      10.42.0.46      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.47      10.42.0.47      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.48      10.42.0.48      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.49      10.42.0.49      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.50      10.42.0.50      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.51      10.42.0.51      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.52      10.42.0.52      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.53      10.42.0.53      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.54      10.42.0.54      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.55      10.42.0.55      255.255.255.255 UGH   2      0        0 eth0
+10.42.0.56      10.42.0.56      255.255.255.255 UGH   2      0        0 eth0
+```
+
+You can also pack everything in a deployment file with 11 replicas:
+
+```
+$ kubectl run myolsrd11 --image=zoobab/olsrd-in-docker --replicas=11 --overrides='{"spec": {"template": {"spec": {"containers": [{"name": "myolsrd11", "image": "zoobab/olsrd-in-docker", "securityContext": {"privileged": true} }]}}}}' --dry-run -o yaml > olsrd11.yaml
+$ kubectl apply -f ./olsrd11.yaml
+deployment.apps/myolsrd11 created
+$ kubectl get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+myolsrd11-6bc8677b75-7kj9q   1/1       Running   0          43s
+myolsrd11-6bc8677b75-9ngvw   1/1       Running   0          43s
+myolsrd11-6bc8677b75-c6nnl   1/1       Running   0          43s
+myolsrd11-6bc8677b75-f79l2   1/1       Running   0          43s
+myolsrd11-6bc8677b75-gzvww   1/1       Running   0          43s
+myolsrd11-6bc8677b75-j9tfc   1/1       Running   0          43s
+myolsrd11-6bc8677b75-npwkm   1/1       Running   0          43s
+myolsrd11-6bc8677b75-px8m6   1/1       Running   0          43s
+myolsrd11-6bc8677b75-r5scc   1/1       Running   0          43s
+myolsrd11-6bc8677b75-v76zh   1/1       Running   0          43s
+myolsrd11-6bc8677b75-xvf8h   1/1       Running   0          43s
+```
+
 TODO
 ====
 
-* deployment yaml to specify the number of --replicas=10
-* kubectl run oneliner passing the ```securityContext: privileged: true``` as a JSON string ?
 * packet loss generator like in https://kinvolk.io/blog/2016/05/testing-web-services-with-traffic-control-on-kubernetes/
+* tune the values of config file to see the impact on CPU
