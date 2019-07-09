@@ -114,3 +114,55 @@ Screenshots:
 
 ![olsrd in kubernetes with 10 replicas](kubernetes-olsrd-10replicas.png)
 ![shell inside a container to show the routes](kubernetes-olsrd-routes.png)
+
+With the kubectl cli:
+
+```
+$ kubectl apply -f ./olsrd1.yaml
+pod/olsrd1 created
+$ kubectl apply -f ./olsrd2.yaml
+pod/olsrd2 created
+$ kubectl get pods -o wide
+# kubectl get pods -o wide
+NAME      READY     STATUS    RESTARTS   AGE       IP           NODE                     NOMINATED NODE   READINESS GATES
+olsrd1    1/1       Running   0          2m10s     10.42.0.10   k3d-k3s-default-server   <none>           <none>
+olsrd2    1/1       Running   0          2m8s      10.42.0.11   k3d-k3s-default-server   <none>           <none>
+```
+
+Now check the routing tables in each container (olsrd1 and olsrd2):
+
+```
+# kubectl exec olsrd1 /sbin/route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         10.42.0.1       0.0.0.0         UG    0      0        0 eth0
+10.42.0.0       *               255.255.255.0   U     0      0        0 eth0
+10.42.0.0       10.42.0.1       255.255.0.0     UG    0      0        0 eth0
+10.42.0.11      10.42.0.11      255.255.255.255 UGH   2      0        0 eth0
+# kubectl exec olsrd2 /sbin/route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         10.42.0.1       0.0.0.0         UG    0      0        0 eth0
+10.42.0.0       *               255.255.255.0   U     0      0        0 eth0
+10.42.0.0       10.42.0.1       255.255.0.0     UG    0      0        0 eth0
+10.42.0.10      10.42.0.10      255.255.255.255 UGH   2      0        0 eth0
+```
+
+Try to ping olsrd2 from olsrd1:
+
+```
+$ kubectl exec -it olsrd1 -- /bin/ping -c 1 10.42.0.11
+PING 10.42.0.11 (10.42.0.11): 56 data bytes
+64 bytes from 10.42.0.11: seq=0 ttl=64 time=0.154 ms
+
+--- 10.42.0.11 ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 0.154/0.154/0.154 ms
+```
+
+TODO
+====
+
+* deployment yaml to specify the number of --replicas=10
+* kubectl run oneliner passing the ```securityContext: privileged: true``` as a JSON string ?
+* packet loss generator like in https://kinvolk.io/blog/2016/05/testing-web-services-with-traffic-control-on-kubernetes/
